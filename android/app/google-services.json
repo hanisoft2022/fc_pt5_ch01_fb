@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "988282119245",
+    "firebase_url": "https://local-basic-test-4fa53-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "local-basic-test-4fa53",
+    "storage_bucket": "local-basic-test-4fa53.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:988282119245:android:835d90ff61100bcf442804",
+        "android_client_info": {
+          "package_name": "com.example.firebase_flutter_basic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVsOfCGyLjpQIVDJlzr45qEIgAXN3CDFI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
