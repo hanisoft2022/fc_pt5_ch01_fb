@@ -1,10 +1,15 @@
 // ignore_for_file: avoid_print
 
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_flutter_basic/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:gap/gap.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 Future<void> main() async {
@@ -20,6 +25,8 @@ class MyApp extends HookWidget {
   Widget build(BuildContext context) {
     final emailTextController = useTextEditingController();
     final passwordTextController = useTextEditingController();
+    File? file;
+    Image? image;
 
     return MaterialApp(
       title: 'Flutter Demo',
@@ -36,6 +43,7 @@ class MyApp extends HookWidget {
               decoration: InputDecoration(hintText: '비밀번호'),
               controller: passwordTextController,
             ).p(10),
+            Gap(30),
             ElevatedButton(
               onPressed: () async {
                 try {
@@ -59,6 +67,33 @@ class MyApp extends HookWidget {
               },
               child: Text('로그인'),
             ),
+            Divider(height: 50, endIndent: 100, indent: 100),
+            ElevatedButton(
+              onPressed: () async {
+                print('파일 선택 버튼 tapped');
+                final FilePickerResult? pickedFile =
+                    await FilePicker.platform.pickFiles();
+                if (pickedFile != null) {
+                  file = File(pickedFile.files.single.path!);
+                  print(file!.path);
+                }
+              },
+              child: '파일 선택'.text.make(),
+            ),
+            Gap(40),
+            ElevatedButton(
+              onPressed: () async {
+                print('이미지 선택 버튼 tapped');
+                final pickedImage = await ImagePicker().pickImage(
+                  source: ImageSource.gallery,
+                );
+                if (pickedImage != null) {
+                  image = Image.file(File(pickedImage.path));
+                }
+              },
+              child: '이미지 선택'.text.make(),
+            ),
+            Container(child: image),
           ],
         ),
         floatingActionButton: FloatingActionButton(
