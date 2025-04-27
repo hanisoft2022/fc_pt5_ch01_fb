@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_flutter_basic/core/common/extension/context.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class MyApp extends HookWidget {
     final storageRef = FirebaseStorage.instance.ref();
     final testImageRef = storageRef.child('image/${DateTime.now().millisecond}.jpg');
     File? file;
-    final db = FirebaseFirestore.instance;
+    final fbfstdb = FirebaseFirestore.instance;
 
     return MaterialApp(
       title: 'Flutter Demo',
@@ -72,11 +73,9 @@ class MyApp extends HookWidget {
                 ).pSymmetric(v: 10),
                 ElevatedButton(
                   onPressed: () async {
-                    try {
-                      if (file != null) {
-                        await testImageRef.putFile(file!);
-                      }
-                    } on FirebaseAuthException catch (e) {}
+                    if (file != null) {
+                      await testImageRef.putFile(file!);
+                    }
                   },
                   child: '파일 전송'.text.make(),
                 ).pSymmetric(v: 10),
@@ -86,7 +85,7 @@ class MyApp extends HookWidget {
                 // CREATE
                 ElevatedButton(
                   onPressed: () async {
-                    final DocumentReference doc = await db.collection('users').add({
+                    final DocumentReference doc = await fbfstdb.collection('users').add({
                       'email': emailTextController.text,
                       'password': passwordTextController.text,
                     });
@@ -96,7 +95,7 @@ class MyApp extends HookWidget {
                 ).pSymmetric(v: 10),
                 ElevatedButton(
                   onPressed: () async {
-                    final doc = await db.collection('users').doc('test').set({
+                    await fbfstdb.collection('users').doc('test').set({
                       'email': emailTextController.text,
                       'password': passwordTextController.text,
                     });
@@ -106,7 +105,7 @@ class MyApp extends HookWidget {
                 // READ
                 ElevatedButton(
                   onPressed: () async {
-                    final doc = await db.collection('users').doc('test').get();
+                    final doc = await fbfstdb.collection('users').doc('test').get();
                     final data = doc.data() as Map<String, dynamic>;
                     for (var e in data.entries) {
                       print('${e.key} : ${e.value}');
@@ -117,7 +116,7 @@ class MyApp extends HookWidget {
                 // UPDATE
                 ElevatedButton(
                   onPressed: () async {
-                    final doc = await db.collection('users').doc('test').update({
+                    await fbfstdb.collection('users').doc('test').update({
                       'email': emailTextController.text,
                       'password': passwordTextController.text,
                       'cute': 'im so cute',
@@ -129,14 +128,52 @@ class MyApp extends HookWidget {
                 // DELETE
                 ElevatedButton(
                   onPressed: () async {
-                    final doc = await db.collection('users').doc('test').delete();
+                    await fbfstdb.collection('users').doc('test').delete();
                   },
                   child: 'DATA DELETE'.text.make(),
                 ).pSymmetric(v: 10),
                 Divider(),
                 // firebase realtime database
                 'firebase realtime database'.text.make(),
-                ElevatedButton(onPressed: () {}, child: '데이터 쓰기'.text.make()).pSymmetric(v: 10),
+                // CREATE
+                ElevatedButton(
+                  onPressed: () async {
+                    await FirebaseDatabase.instance.ref('users/test').set({
+                      'email': emailTextController.text,
+                      'password': passwordTextController.text,
+                    });
+                  },
+                  child: '데이터 쓰기'.text.make(),
+                ).pSymmetric(v: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    await FirebaseDatabase.instance.ref('messages').push().set({
+                      'email': emailTextController.text,
+                      'password': passwordTextController.text,
+                    });
+                  },
+                  child: '데이터 푸쉬'.text.make(),
+                ).pSymmetric(v: 10),
+                // UPDATE
+                ElevatedButton(
+                  onPressed: () async {
+                    await FirebaseDatabase.instance.ref('users/test').update({
+                      'email': '${emailTextController.text} ---updated',
+                      'password': passwordTextController.text,
+                    });
+                  },
+                  child: '데이터 업데이트'.text.make(),
+                ).pSymmetric(v: 10),
+
+                // READ
+                ElevatedButton(
+                  onPressed: () async {
+                    final snapshot = await FirebaseDatabase.instance.ref().get();
+                    print('snapshot: ${snapshot.value}');
+                  },
+                  child: '데이터 읽기'.text.make(),
+                ).pSymmetric(v: 10),
+                // bottom padding
                 Gap(context.bottomPadding),
               ],
             ),
@@ -146,7 +183,7 @@ class MyApp extends HookWidget {
           child: const Icon(Icons.add),
           onPressed: () async {
             try {
-              final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              await FirebaseAuth.instance.createUserWithEmailAndPassword(
                 email: emailTextController.text,
                 password: passwordTextController.text,
               );
