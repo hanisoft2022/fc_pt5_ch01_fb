@@ -5,9 +5,11 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_flutter_basic/core/common/extension/context.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:gap/gap.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class MyApp extends HookWidget {
@@ -27,106 +29,117 @@ class MyApp extends HookWidget {
       theme: ThemeData(primarySwatch: Colors.blue),
       home: Scaffold(
         body: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              TextField(
-                decoration: InputDecoration(hintText: '이메일 주소'),
-                controller: emailTextController,
-              ).pSymmetric(h: 30, v: 10),
-              TextField(
-                decoration: InputDecoration(hintText: '비밀번호'),
-                controller: passwordTextController,
-              ).pSymmetric(h: 30, v: 10),
-              // firebase auth
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: emailTextController.text,
-                      password: passwordTextController.text,
-                    );
-                  } on FirebaseAuthException catch (e) {
-                    if (e.code == 'user-not-found') {
-                    } else if (e.code == 'wrong-password') {}
-                  }
-                },
-                child: '로그인'.text.make(),
-              ).pSymmetric(v: 10),
-              Divider(),
-              // firebase storage
-              ElevatedButton(
-                onPressed: () async {
-                  final FilePickerResult? pickedFile = await FilePicker.platform.pickFiles();
-                  if (pickedFile != null) {
-                    file = File(pickedFile.files.single.path!);
-                  }
-                },
-                child: '파일 선택'.text.make(),
-              ).pSymmetric(v: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    if (file != null) {
-                      await testImageRef.putFile(file!);
+          bottom: false,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TextField(
+                  decoration: InputDecoration(hintText: '이메일 주소'),
+                  controller: emailTextController,
+                ).pSymmetric(h: 30, v: 10),
+                TextField(
+                  decoration: InputDecoration(hintText: '비밀번호'),
+                  controller: passwordTextController,
+                ).pSymmetric(h: 30, v: 10),
+                // firebase auth
+                'firebase auth'.text.make(),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: emailTextController.text,
+                        password: passwordTextController.text,
+                      );
+                    } on FirebaseAuthException catch (e) {
+                      if (e.code == 'user-not-found') {
+                      } else if (e.code == 'wrong-password') {}
                     }
-                  } on FirebaseAuthException catch (e) {}
-                },
-                child: '파일 전송'.text.make(),
-              ).pSymmetric(v: 10),
-              Divider(),
-              // firebase firestore
-              // CREATE
-              ElevatedButton(
-                onPressed: () async {
-                  final DocumentReference doc = await db.collection('users').add({
-                    'email': emailTextController.text,
-                    'password': passwordTextController.text,
-                  });
-                  print(doc.id);
-                },
-                child: 'DATA CREATE (add)'.text.make(),
-              ).pSymmetric(v: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  final doc = await db.collection('users').doc('test').set({
-                    'email': emailTextController.text,
-                    'password': passwordTextController.text,
-                  });
-                },
-                child: 'DATA CREATE (set)'.text.make(),
-              ).pSymmetric(v: 10),
-              // READ
-              ElevatedButton(
-                onPressed: () async {
-                  final doc = await db.collection('users').doc('test').get();
-                  final data = doc.data() as Map<String, dynamic>;
-                  for (var e in data.entries) {
-                    print('${e.key} : ${e.value}');
-                  }
-                },
-                child: 'DATA READ'.text.make(),
-              ).pSymmetric(v: 10),
-              // UPDATE
-              ElevatedButton(
-                onPressed: () async {
-                  final doc = await db.collection('users').doc('test').update({
-                    'email': emailTextController.text,
-                    'password': passwordTextController.text,
-                    'cute': 'im so cute',
-                    'time': Timestamp.now(),
-                  });
-                },
-                child: 'DATA UPDATE'.text.make(),
-              ).pSymmetric(v: 10),
-              // DELETE
-              ElevatedButton(
-                onPressed: () async {
-                  final doc = await db.collection('users').doc('test').delete();
-                },
-                child: 'DATA DELETE'.text.make(),
-              ).pSymmetric(v: 10),
-            ],
+                  },
+                  child: '로그인'.text.make(),
+                ).pSymmetric(v: 10),
+                Divider(),
+                // firebase storage
+                'firebase storage'.text.make(),
+                ElevatedButton(
+                  onPressed: () async {
+                    final FilePickerResult? pickedFile = await FilePicker.platform.pickFiles();
+                    if (pickedFile != null) {
+                      file = File(pickedFile.files.single.path!);
+                    }
+                  },
+                  child: '파일 선택'.text.make(),
+                ).pSymmetric(v: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      if (file != null) {
+                        await testImageRef.putFile(file!);
+                      }
+                    } on FirebaseAuthException catch (e) {}
+                  },
+                  child: '파일 전송'.text.make(),
+                ).pSymmetric(v: 10),
+                Divider(),
+                // firebase firestore
+                'firebase firestore'.text.make(),
+                // CREATE
+                ElevatedButton(
+                  onPressed: () async {
+                    final DocumentReference doc = await db.collection('users').add({
+                      'email': emailTextController.text,
+                      'password': passwordTextController.text,
+                    });
+                    print(doc.id);
+                  },
+                  child: 'DATA CREATE (add)'.text.make(),
+                ).pSymmetric(v: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    final doc = await db.collection('users').doc('test').set({
+                      'email': emailTextController.text,
+                      'password': passwordTextController.text,
+                    });
+                  },
+                  child: 'DATA CREATE (set)'.text.make(),
+                ).pSymmetric(v: 10),
+                // READ
+                ElevatedButton(
+                  onPressed: () async {
+                    final doc = await db.collection('users').doc('test').get();
+                    final data = doc.data() as Map<String, dynamic>;
+                    for (var e in data.entries) {
+                      print('${e.key} : ${e.value}');
+                    }
+                  },
+                  child: 'DATA READ'.text.make(),
+                ).pSymmetric(v: 10),
+                // UPDATE
+                ElevatedButton(
+                  onPressed: () async {
+                    final doc = await db.collection('users').doc('test').update({
+                      'email': emailTextController.text,
+                      'password': passwordTextController.text,
+                      'cute': 'im so cute',
+                      'time': Timestamp.now(),
+                    });
+                  },
+                  child: 'DATA UPDATE'.text.make(),
+                ).pSymmetric(v: 10),
+                // DELETE
+                ElevatedButton(
+                  onPressed: () async {
+                    final doc = await db.collection('users').doc('test').delete();
+                  },
+                  child: 'DATA DELETE'.text.make(),
+                ).pSymmetric(v: 10),
+                Divider(),
+                // firebase realtime database
+                'firebase realtime database'.text.make(),
+                ElevatedButton(onPressed: () {}, child: '데이터 쓰기'.text.make()).pSymmetric(v: 10),
+                Gap(context.bottomPadding),
+              ],
+            ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
